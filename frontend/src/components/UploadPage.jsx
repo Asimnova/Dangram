@@ -1,46 +1,41 @@
 import { useState } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/reels";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
+  const [caption, setCaption] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setMessage("Please select a file to upload.");
-      return;
+    if (!file) return setMessage("Please select a file");
+
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("video", file);
+    formData.append("caption", caption);
+
+    try {
+      await axios.post(API_URL, formData, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      });
+      setMessage("Upload successful ✅");
+    } catch (err) {
+      setMessage("Upload failed ❌");
     }
-    // Implement actual upload logic with backend here
-    setMessage(`File "${file.name}" ready to upload (backend integration pending).`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md transform transition hover:shadow-2xl">
-        <h2 className="text-3xl font-extrabold text-emerald-800 dark:text-emerald-300 text-center mb-6">Upload Media</h2>
-        <form onSubmit={handleUpload} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Video or Audio File</label>
-            <input
-              type="file"
-              accept="video/*,audio/*"
-              onChange={handleFileChange}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-emerald-500 dark:focus:border-emerald-400 transition bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400"
-          >
-            Upload
-          </button>
-        </form>
-        {message && <p className="mt-4 text-center text-emerald-600 dark:text-emerald-400 font-medium">{message}</p>}
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <form onSubmit={handleUpload} className="bg-gray-800 p-6 rounded-lg w-full max-w-md space-y-4">
+        <input type="file" accept="video/*" onChange={(e) => setFile(e.target.files[0])} className="w-full" />
+        <input type="text" placeholder="Add a caption" value={caption} onChange={(e) => setCaption(e.target.value)} className="w-full p-2 text-black rounded" />
+        <button type="submit" className="w-full bg-emerald-600 py-2 rounded">Upload</button>
+        {message && <p className="text-center">{message}</p>}
+      </form>
     </div>
   );
 }
+

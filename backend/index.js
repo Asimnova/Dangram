@@ -44,6 +44,7 @@ import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import uploadRoutes from './routes/upload.js';
 import path from 'path';
+import reelRoutes from './routes/reelRoutes.js';
 
 dotenv.config();
 connectDB(); // Call to connect to DB
@@ -60,6 +61,8 @@ app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 app.use('/api/auth', authRoutes);
 app.use("/api/posts", postsRoutes);
 app.use("/api/upload", uploadRoutes);
+
+app.use("/api/reels", reelRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`🚀 Server running on port ${process.env.PORT}`);

@@ -9,6 +9,7 @@ import UploadPage from "../components/UploadPage";
 import SettingsPage from "../components/SettingsPage";
 import BioPage from "../components/BioPage";
 import ProfilePage from "./ProfilePage";
+import Feedback from "../components/Feedback";
 
 
 
@@ -97,6 +98,7 @@ export default function Home() {
             <Route path="post" element={<PostPage />} />
             <Route path="reels" element={<ReelsPage />} />
             <Route path="upload" element={<UploadPage />} />
+            <Route path="feedback" element={<Feedback />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="bio" element={<BioPage />} />
             <Route path="profile" element={<ProfilePage />} /> {/* New route */}
