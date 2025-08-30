@@ -55,6 +55,39 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Post from '../models/Post.js'; // make sure you have Post model
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select("-password"); // exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // fetch posts by this user
+    const posts = await Post.find({ user: username });
+
+    res.json({
+      user: {
+        name: user.name,
+        username: user.username,
+        email: user.email,
+      },
+      stats: {
+        posts: posts.length,
+        followers: user.followers?.length || 0,
+        following: user.following?.length || 0,
+      },
+      posts
+    });
+  } catch (err) {
+    console.error("GetUserProfile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 export const signup = async (req, res) => {
   try {

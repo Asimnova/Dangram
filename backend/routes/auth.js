@@ -26,9 +26,12 @@
 import express from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import { signup, signin } from '../controllers/authController.js';
+import { signup, signin, getUserProfile } from '../controllers/authController.js';
 
 const router = express.Router();
+
+router.get('/profile/:username', getUserProfile);
+
 
 router.post('/signup', signup);
 router.post('/signin', signin);

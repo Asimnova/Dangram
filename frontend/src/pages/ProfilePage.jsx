@@ -1,74 +1,150 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
-  const [userPosts, setUserPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
-  const username = localStorage.getItem('username') || 'Guest';
+  const { username: routeUsername } = useParams();
+  const loggedInUsername = localStorage.getItem("username");
+  const username = routeUsername || loggedInUsername || "Guest";
   const navigate = useNavigate();
 
+  const [userContent, setUserContent] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
+  const [profilePic, setProfilePic] = useState("https://via.placeholder.com/128"); // Default or current profile pic
+
   useEffect(() => {
-    const fetchUserPosts = async () => {
+    const fetchUserContent = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/posts', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        const res = await axios.get("http://localhost:5000/api/reels", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        const userPostsData = res.data.filter(post => post.user === username);
-        setUserPosts(userPostsData);
+        const userContentData = res.data.filter((item) => item.user.username === username);
+        setUserContent(userContentData);
         setStats({
-          posts: userPostsData.length,
-          followers: 0, // Placeholder, requires follower model
-          following: 0 // Placeholder, requires following model
+          posts: userContentData.length,
+          followers: 0, // Update with actual backend data if available
+          following: 0, // Update with actual backend data if available
         });
       } catch (err) {
-        console.error(err);
+        console.error("Error loading content:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchUserPosts();
+
+    const fetchProfilePic = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/user/${username}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setProfilePic(res.data.profilePic || "https://via.placeholder.com/128");
+      } catch (err) {
+        console.error("Error loading profile pic:", err);
+      }
+    };
+
+    fetchUserContent();
+    fetchProfilePic();
   }, [username]);
 
+  const handleEditProfile = () => {
+    navigate(`/user/${username}/edit`);
+  };
+
+  const handleProfilePicClick = () => {
+    document.getElementById("profilePicInput").click();
+  };
+
+  const handleProfilePicUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("profilePic", file);
+
+      try {
+        const res = await axios.put(
+          `http://localhost:5000/api/user/${username}/profile-pic`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        setProfilePic(res.data.profilePic); // Update with new profile pic URL from backend
+        alert("Profile picture updated successfully!");
+      } catch (err) {
+        console.error("Error uploading profile pic:", err);
+        alert("Failed to update profile picture.");
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-3xl">
-        <div className="flex items-center space-x-6 mb-6">
-          <div className="w-24 h-24 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-            {/* Placeholder for profile pic */}
-            <img src="https://via.placeholder.com/96" alt="Profile" className="w-full h-full object-cover" />
+    <div className="flex min-h-screen bg-black text-white">
+      {/* Profile Section */}
+      <div className="flex-1 flex flex-col items-center pt-10">
+        {/* Profile Header */}
+        <div className="flex items-center space-x-10 w-3/4 border-b border-gray-800 pb-8">
+          <div
+            className="w-32 h-32 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center cursor-pointer"
+            onClick={handleProfilePicClick}
+          >
+            <img
+              src={profilePic}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
+          <input
+            id="profilePicInput"
+            type="file"
+            accept="image/*"
+            onChange={handleProfilePicUpload}
+            className="hidden"
+          />
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{username}</h2>
-            <div className="flex space-x-6 mt-2">
-              <div className="text-center">
-                <p className="text-gray-600 dark:text-gray-300">Posts</p>
-                <p className="font-bold text-gray-800 dark:text-white">{stats.posts}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-gray-600 dark:text-gray-300">Followers</p>
-                <p className="font-bold text-gray-800 dark:text-white">{stats.followers}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-gray-600 dark:text-gray-300">Following</p>
-                <p className="font-bold text-gray-800 dark:text-white">{stats.following}</p>
-              </div>
+            <div className="flex items-center space-x-4">
+              <h2 className="text-2xl">{username}</h2>
+              <button
+                onClick={handleEditProfile}
+                className="bg-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-600"
+              >
+                Edit Profile
+              </button>
+              <button className="bg-gray-700 px-3 py-1 rounded-md text-sm hover:bg-gray-600">
+                View Archive
+              </button>
+              <span className="cursor-pointer">⚙️</span>
             </div>
+            <div className="flex space-x-8 mt-4">
+              <span><b>{stats.posts}</b> posts</span>
+              <span><b>{stats.followers}</b> followers</span>
+              <span><b>{stats.following}</b> following</span>
+            </div>
+            <p className="mt-3 font-semibold">Reactredux</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
-          {userPosts.map(post => (
-            <div key={post._id} className="relative">
-              <img src={post.img} alt="post" className="w-full h-48 object-cover rounded-lg" />
-              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-                <span className="text-white">Likes: {post.likes?.length || 0}</span>
-              </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-3 gap-1 mt-6 w-3/4">
+          {loading && <p className="text-center col-span-3">Loading...</p>}
+          {!loading && userContent.length === 0 && (
+            <p className="text-center col-span-3">No content yet</p>
+          )}
+          {userContent.map((item) => (
+            <div key={item._id} className="relative">
+              <video
+                src={`http://localhost:5000${item.videoUrl}`}
+                className="w-full h-72 object-cover"
+                muted
+                onClick={() => navigate(`/reel/${item._id}`)}
+              />
             </div>
           ))}
         </div>
-        {loading && <p className="text-center text-gray-800 dark:text-white">Loading...</p>}
-        {!loading && userPosts.length === 0 && <p className="text-center text-gray-800 dark:text-white">No posts yet</p>}
       </div>
     </div>
   );

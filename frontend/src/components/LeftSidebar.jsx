@@ -1,92 +1,36 @@
-// import { useNavigate } from "react-router-dom";
-
-// export default function LeftSidebar() {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div className="w-64 bg-white dark:bg-gray-800 shadow-lg p-4 space-y-4">
-//       <button
-//         onClick={() => navigate("/home/post")}
-//         className="w-full bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 p-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition"
-//       >
-//         Post
-//       </button>
-//       <button
-//         onClick={() => navigate("/home/reels")}
-//         className="w-full bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 p-3 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition"
-//       >
-//         Reels
-//       </button>
-//       <button
-//         onClick={() => navigate("/home/upload")}
-//         className="w-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-3 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition"
-//       >
-//         Upload
-//       </button>
-//       <button
-//         onClick={() => navigate("/home/settings")}
-//         className="w-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-3 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition"
-//       >
-//         Settings
-//       </button>
-//       <button
-//         onClick={() => navigate("/home/bio")}
-//         className="w-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 p-3 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-800 transition"
-//       >
-//         Bio
-//       </button>
-//     </div>
-//   );
-// }
-
-
-
+// src/components/LeftSidebar.jsx
+import { Home, Search, Compass, Film, MessageSquare, Heart, PlusSquare, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function LeftSidebar() {
   const navigate = useNavigate();
 
+  const menuItems = [
+    { label: "Home", icon: <Home />, path: "/home" },
+    { label: "Search", icon: <Search />, path: "/home/search" },   // <-- only works if you add a Search route
+    { label: "Explore", icon: <Compass />, path: "/home/explore" },
+    { label: "Reels", icon: <Film />, path: "/home/reels" },
+    { label: "Messages", icon: <MessageSquare />, path: "/home/messages" },
+    { label: "Notifications", icon: <Heart />, path: "/home/notifications" },
+    { label: "Create", icon: <PlusSquare />, path: "/home/upload" },
+    { label: "Profile", icon: <User />, path: "/home/profile" },
+  ];
+
   return (
-    <div className="w-64 bg-white dark:bg-gray-800 shadow-lg p-4 space-y-4">
-      <button
-        onClick={() => navigate("/home/post")}
-        className="w-full bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 p-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition"
-      >
-        Post
-      </button>
-      <button
-        onClick={() => navigate("/home/reels")}
-        className="w-full bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 p-3 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition"
-      >
-        Reels
-      </button>
-      <button
-        onClick={() => navigate("/home/upload")}
-        className="w-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-3 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition"
-      >
-        Upload
-      </button>
-      <button 
-      className="w-full bg-green-100  dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-3 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition"
-      onClick={() => navigate("/home/feedback")}>feedback</button>
-      <button
-        onClick={() => navigate("/home/settings")}
-        className="w-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 p-3 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition"
-      >
-        Settings
-      </button>
-      <button
-        onClick={() => navigate("/home/bio")}
-        className="w-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 p-3 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-800 transition"
-      >
-        Bio
-      </button>
-      <button
-        onClick={() => navigate("/home/profile")}
-        className="w-full bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 p-3 rounded-lg hover:bg-pink-200 dark:hover:bg-pink-800 transition"
-      >
-        Profile
-      </button>
-    </div>
+    <aside className="w-64 bg-black text-white h-screen flex flex-col p-4">
+      <h1 className="text-2xl font-bold mb-6">Dangram</h1>
+      <nav className="flex flex-col gap-4">
+        {menuItems.map((item) => (
+          <button
+            key={item.label}
+            onClick={() => navigate(item.path)}
+            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition"
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+    </aside>
   );
 }
